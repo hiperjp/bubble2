@@ -187,7 +187,7 @@ public class LibraryBrowserFragment extends Fragment
         mAllItems.clear();
 
         for (Comic c : mComics) {
-            if (mFilterSearch.length() > 0 && !c.getFile().getName().contains(mFilterSearch))
+            if (mFilterSearch.length() > 0 && !c.getName().contains(mFilterSearch))
                 continue;
             if (mFilterRead != R.id.menu_browser_filter_all) {
                 if (mFilterRead == R.id.menu_browser_filter_read && c.getCurrentPage() != c.getTotalPages())
@@ -375,7 +375,7 @@ public class LibraryBrowserFragment extends Fragment
         }
 
         public void setupComic(Comic comic) {
-            mTitleTextView.setText(comic.getFile().getName());
+            mTitleTextView.setText(comic.getName());
             mPagesTextView.setText(Integer.toString(comic.getCurrentPage()) + '/' + Integer.toString(comic.getTotalPages()));
 
             mPicasso.load(LocalCoverHandler.getComicCoverUri(comic))
