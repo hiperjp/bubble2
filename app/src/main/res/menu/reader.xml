@@ -30,4 +30,8 @@
             </group>
         </menu>
     </item>
+    <item android:id="@+id/menu_open_thumbnail"
+          android:title="@string/action_open_thumbnail"
+          app:showAsAction="never">
+    </item>
 </menu>

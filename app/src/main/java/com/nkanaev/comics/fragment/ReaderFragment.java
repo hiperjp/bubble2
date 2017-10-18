@@ -1,23 +1,19 @@
 package com.nkanaev.comics.fragment;
 
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.content.Context;
 import android.os.Handler;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.*;
 import android.util.SparseArray;
 import android.view.*;
 import android.widget.*;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.PagerAdapter;
 
 import com.nkanaev.comics.Constants;
 import com.nkanaev.comics.R;
@@ -26,12 +22,9 @@ import com.nkanaev.comics.managers.LocalComicHandler;
 import com.nkanaev.comics.managers.Utils;
 import com.nkanaev.comics.model.Comic;
 import com.nkanaev.comics.model.Storage;
-import com.nkanaev.comics.parsers.ParserFactory;
-import com.nkanaev.comics.parsers.RarParser;
+import com.nkanaev.comics.parsers.*;
 import com.nkanaev.comics.view.ComicViewPager;
 import com.nkanaev.comics.view.PageImageView;
-import com.nkanaev.comics.parsers.Parser;
-
 import com.squareup.picasso.*;
 
 import java.io.File;
@@ -51,6 +44,8 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
     public static final String STATE_NEW_COMIC = "STATE_NEW_COMIC";
     public static final String STATE_NEW_COMIC_TITLE = "STATE_NEW_COMIC_TITLE";
 
+    private ReaderActivity mActivity;
+
     private ComicViewPager mViewPager;
     private LinearLayout mPageNavLayout;
     private SeekBar mPageSeekBar;
@@ -65,7 +60,6 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
     private String mFilename;
     private Constants.PageViewMode mPageViewMode;
     private boolean mIsLeftToRight;
-    private float mStartingX;
 
     private Parser mParser;
     private Picasso mPicasso;
@@ -119,12 +113,12 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
             mComic = Storage.getStorage(getActivity()).getComic(comicId);
             file = mComic.getFile();
             mCurrentPage = mComic.getCurrentPage();
+            mFilename = file.getName();
         }
         else if (mode == Mode.MODE_BROWSER) {
             file = (File) bundle.getSerializable(PARAM_HANDLER);
         }
         mParser = ParserFactory.create(file);
-        mFilename = file.getName();
 
         mCurrentPage = Math.max(1, Math.min(mCurrentPage, mParser.numPages()));
 
@@ -157,6 +151,8 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         }
 
         setHasOptionsMenu(true);
+
+        mActivity = (ReaderActivity) getActivity();
     }
 
     @Override
@@ -220,6 +216,15 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
                     hitBeginning();
             }
         });
+        if (ThumbnailFragment.LastSelection >= 0) {
+            mViewPager.post(new Runnable() {
+                @Override
+                public void run() {
+                    setCurrentPage(ThumbnailFragment.LastSelection, false);
+                    ThumbnailFragment.LastSelection = -1;
+                }
+            });
+        }
 
         if (mCurrentPage != -1) {
             setCurrentPage(mCurrentPage);
@@ -239,7 +244,12 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         else {
             setFullscreen(true);
         }
-        getActivity().setTitle(mFilename);
+
+        if (mComic != null) {
+            getActivity().setTitle(mComic.getName());
+        } else {
+            getActivity().setTitle(mFilename);
+        }
         updateSeekBar();
 
         return view;
@@ -333,6 +343,16 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
                 mViewPager.getAdapter().notifyDataSetChanged();
                 updateSeekBar();
                 break;
+            case R.id.menu_open_thumbnail:
+                if (mComic != null) {
+                    openImageList();
+                }
+                else {
+                    (new AlertDialog.Builder(getActivity())
+                    .setTitle("Not supported")
+                    .setMessage("Image list is not available in browser mode.")).create().show();
+                }
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -343,7 +363,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
 
     private void setCurrentPage(int page, boolean animated) {
         if (mIsLeftToRight) {
-            mViewPager.setCurrentItem(page - 1);
+            mViewPager.setCurrentItem(page - 1, animated);
             mPageSeekBar.setProgress(page - 1);
         }
         else {
@@ -633,7 +653,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
 
         AlertDialog dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(titleRes)
-                .setMessage(newComic.getFile().getName())
+                .setMessage(newComic.getName())
                 .setPositiveButton(R.string.switch_action_positive, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -660,5 +680,10 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         Rect bounds = mPageSeekBar.getProgressDrawable().getBounds();
         mPageSeekBar.setProgressDrawable(d);
         mPageSeekBar.getProgressDrawable().setBounds(bounds);
+    }
+
+    private void openImageList() {
+        ThumbnailFragment.CurrentComic = mComic;
+        mActivity.pushFragment(new ThumbnailFragment());
     }
 }
