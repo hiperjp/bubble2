@@ -137,6 +137,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         mIsLeftToRight = mPreferences.getBoolean(Constants.SETTINGS_READING_LEFT_TO_RIGHT, true);
 
         // workaround: extract rar achive
+        /*
         if (mParser instanceof RarParser) {
             File cacheDir = new File(getActivity().getExternalCacheDir(), "c");
             if (!cacheDir.exists()) {
@@ -149,7 +150,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
             }
             ((RarParser)mParser).setCacheDirectory(cacheDir);
         }
-
+*/
         setHasOptionsMenu(true);
 
         mActivity = (ReaderActivity) getActivity();

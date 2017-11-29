@@ -1,5 +1,5 @@
 package com.nkanaev.comics.parsers;
-
+/*
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -135,3 +135,4 @@ public class RarParser implements Parser {
         }
     }
 }
+*/

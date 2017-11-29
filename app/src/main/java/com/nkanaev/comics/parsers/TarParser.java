@@ -1,6 +1,6 @@
 package com.nkanaev.comics.parsers;
 
-
+/*
 import com.nkanaev.comics.managers.NaturalOrderComparator;
 import com.nkanaev.comics.managers.Utils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -69,3 +69,4 @@ public class TarParser implements Parser {
 
     }
 }
+*/

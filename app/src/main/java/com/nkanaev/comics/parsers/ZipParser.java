@@ -1,5 +1,5 @@
 package com.nkanaev.comics.parsers;
-
+/*
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,3 +59,4 @@ public class ZipParser implements Parser {
         mZipFile.close();
     }
 }
+*/

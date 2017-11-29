@@ -13,13 +13,16 @@ public class ParserFactory {
 
     public static Parser create(File file) {
         Parser parser = null;
+         /*
         String fileName = file.getAbsolutePath().toLowerCase();
         if (file.isDirectory()) {
             parser = new DirectoryParser();
         }
+
         if (Utils.isZip(fileName)) {
             parser = new ZipParser();
         }
+
         else if (Utils.isRar(fileName)) {
             parser = new RarParser();
         }
@@ -29,6 +32,8 @@ public class ParserFactory {
         else if (Utils.isSevenZ(fileName)) {
             parser = new SevenZParser();
         }
+        */
+        parser = new DirectoryParser();
         return tryParse(parser, file);
     }
 
