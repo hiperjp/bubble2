@@ -4,15 +4,12 @@ package com.nkanaev.comics.parsers;
 import com.nkanaev.comics.managers.NaturalOrderComparator;
 import com.nkanaev.comics.managers.Utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.io.*;
+import java.util.*;
 
 public class DirectoryParser implements Parser {
     private ArrayList<File> mFiles = new ArrayList<>();
+    private boolean mSorted = false;
 
     @Override
     public void parse(File dir) throws IOException {
@@ -31,6 +28,11 @@ public class DirectoryParser implements Parser {
                 }
             }
         }
+    }
+
+    private void sort() {
+        if (mSorted)
+            return;
 
         Collections.sort(mFiles, new NaturalOrderComparator() {
             @Override
@@ -38,6 +40,7 @@ public class DirectoryParser implements Parser {
                 return ((File) o).getName();
             }
         });
+        mSorted = true;
     }
 
     @Override
@@ -47,6 +50,7 @@ public class DirectoryParser implements Parser {
 
     @Override
     public InputStream getPage(int num) throws IOException {
+        sort();
         return new FileInputStream(mFiles.get(num));
     }
 

@@ -8,6 +8,8 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
+import android.util.Log;
+
 import com.nkanaev.comics.Constants;
 import com.nkanaev.comics.MainApplication;
 import com.nkanaev.comics.model.*;
@@ -105,6 +107,7 @@ public class Scanner {
         @Override
         public void run() {
             try {
+                //Log.w("Scanner", "Begin scan");
                 Context ctx = MainApplication.getAppContext();
                 String libDir = MainApplication.getPreferences()
                         .getString(Constants.SETTINGS_LIBRARY_DIR, "");
@@ -123,21 +126,24 @@ public class Scanner {
                 while (!directories.isEmpty()) {
                     File dir = directories.pop();
                     File[] files = dir.listFiles();
-                    Arrays.sort(files);
+                    // Arrays.sort(files);
                     for (File file : files) {
                         if (mIsStopped) return;
-                        if (file.isDirectory()) {
-                            directories.add(file);
-                        }
+                        if (!file.isDirectory())
+                            continue;
+
                         if (storageFiles.containsKey(file)) {
                             storageFiles.remove(file);
                             continue;
                         }
+
                         Parser parser = ParserFactory.create(file);
-                        if (parser == null) continue;
-                        if (parser.numPages() > 0) {
+                        if (parser != null && parser.numPages() > 0) {
                             storage.addBook(file, parser.getType(), parser.numPages());
                             notifyMediaUpdated();
+                        }
+                        else {
+                            directories.add(file);
                         }
                     }
                 }
@@ -150,6 +156,7 @@ public class Scanner {
                 }
             }
             finally {
+                //Log.w("Scanner", "Finish scan");
                 mIsStopped = false;
 
                 if (mIsRestarted) {
