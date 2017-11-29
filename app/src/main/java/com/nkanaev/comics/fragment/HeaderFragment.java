@@ -30,13 +30,14 @@ import java.util.Random;
 
 
 public class HeaderFragment extends Fragment
-        implements View.OnLayoutChangeListener, Target {
+        implements View.OnLayoutChangeListener, Target, ImageView.OnClickListener {
 
     private ImageView mIconImageView;
     private ImageView mCoverImageView;
     private Picasso mPicasso;
     private Drawable mDrawable;
     private boolean mIsRunning = false;
+    private Random mRandom = new Random();
 
     static {
         System.loadLibrary("bitmap-styler");
@@ -50,6 +51,7 @@ public class HeaderFragment extends Fragment
         mPicasso = ((MainActivity) getActivity()).getPicasso();
         mIconImageView = (ImageView) view.findViewById(R.id.navbar_icon);
         mCoverImageView = (ImageView) view.findViewById(R.id.navbar_cover);
+        mCoverImageView.setOnClickListener(this);
         if (savedInstanceState == null)
             mCoverImageView.addOnLayoutChangeListener(this);
         else
@@ -79,7 +81,7 @@ public class HeaderFragment extends Fragment
 
         ArrayList<Comic> comics = Storage.getStorage(getActivity()).listComics();
         if (comics.size() > 0) {
-            Comic c = comics.get(new Random().nextInt(comics.size()));
+            Comic c = comics.get(mRandom.nextInt(comics.size()));
             mPicasso.load(LocalCoverHandler.getComicCoverUri(c)).into(this);
         }
     }
@@ -101,6 +103,11 @@ public class HeaderFragment extends Fragment
 
         mIconImageView.animate().alpha(0).setDuration(500).setListener(null);
         mCoverImageView.animate().alpha(1).setDuration(500).setListener(null);
+    }
+
+    @Override
+    public void onClick(View view) {
+        createBitmap();
     }
 
     private class HalftonerTask extends AsyncTask<Void, Void, Bitmap> {
