@@ -15,10 +15,15 @@
             </group>
         </menu>
     </item>
+    <item android:id="@+id/menu_open_thumbnail"
+          android:title="@string/action_open_thumbnail"
+          android:icon="@drawable/ic_thumbnail_view"
+          app:showAsAction="always">
+    </item>
     <item android:id="@+id/menu_reader_aspect_ratio"
           android:title="@string/action_view_mode"
           android:icon="@drawable/ic_aspect_ratio_white_24dp"
-          app:showAsAction="always">
+          app:showAsAction="never">
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@+id/view_mode_aspect_fill"
@@ -29,9 +34,5 @@
                       android:title="@string/action_view_mode_fit_width"/>
             </group>
         </menu>
-    </item>
-    <item android:id="@+id/menu_open_thumbnail"
-          android:title="@string/action_open_thumbnail"
-          app:showAsAction="never">
     </item>
 </menu>
