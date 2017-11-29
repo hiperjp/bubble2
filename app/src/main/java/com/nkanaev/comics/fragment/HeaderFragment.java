@@ -11,6 +11,7 @@ import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,11 @@ public class HeaderFragment extends Fragment
     private Picasso mPicasso;
     private Drawable mDrawable;
     private boolean mIsRunning = false;
+
+    static {
+        System.loadLibrary("bitmap-styler");
+    }
+    public native void stylizeBitmap(Bitmap bitmap, int primary);
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -124,27 +130,19 @@ public class HeaderFragment extends Fragment
                 bx = (int)((double)nbw / 2 - vw / 2);
                 by = 0;
             }
+            Log.w("Bitmap", String.format("Computed: %d, %d", nbw, nbh));
 
             Bitmap scaled = Bitmap.createScaledBitmap(mBitmap, nbw, nbh, false);
             Bitmap mutable = scaled.copy(Bitmap.Config.ARGB_8888, true);
             Bitmap bitmap = Bitmap.createBitmap(mutable, bx, by, (int)vw, (int)vh);
 
+            Log.w("Bitmap", "Start pixel filling");
             double s = Math.PI/6;
             int a, r, g, b, l, t, f, p;
             int primary = getResources().getColor(R.color.primary);
-            for (int y = 0; y < bitmap.getHeight(); y++) {
-                for (int x = 0; x < bitmap.getWidth(); x++) {
-                    p = bitmap.getPixel(x, y);
-                    a = Color.alpha(p);
-                    r = Color.red(p);
-                    g = Color.green(p);
-                    b = Color.blue(p);
-                    l = (int)(0.299 * r + 0.587 * g + 0.114 * b);
-                    t = (int)((Math.cos(s*(x+0.5))*Math.cos(s*(y+0.5))+1)*127);
-                    f = (l > t) ? primary : Color.argb(a, 0, 0, 0);
-                    bitmap.setPixel(x, y, f);
-                }
-            }
+            Log.w("Header", String.format("color is %d (%d, %d, %d, %d)", primary, Color.alpha(primary), Color.red(primary), Color.green(primary), Color.blue(primary)));
+            stylizeBitmap(bitmap, primary);
+            Log.w("Bitmap", "Finish pixel filling");
 
             RenderScript rs = RenderScript.create(getActivity());
             Allocation input = Allocation.createFromBitmap(rs, bitmap);

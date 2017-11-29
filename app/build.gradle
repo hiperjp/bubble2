@@ -11,11 +11,15 @@ android {
 
     defaultConfig {
         applicationId "com.nkanaev.comics"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 22
 
         versionName "1.6.0"
         versionCode 7
+
+        ndk {
+            moduleName "bitmap-styler"
+        }
     }
 
     buildTypes {
@@ -32,6 +36,15 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/NOTICE.txt'
+    }
+
+    // Sets up parameters for both jni build and cmake.
+    // For a complete list of parameters, see
+    // developer.android.com/ndk/guides/cmake.html#variables
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
     }
 }
 
