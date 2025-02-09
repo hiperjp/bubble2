@@ -88,6 +88,10 @@ public final class Utils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
     }
 
+    public static boolean isVanillaIceCreamOrLater() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM;
+    }
+
     public static int getHeapSize(Context context) {
         ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         boolean isLargeHeap = (context.getApplicationInfo().flags & ApplicationInfo.FLAG_LARGE_HEAP) != 0;
