@@ -88,6 +88,21 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         setupNavigationView(navigationView);
+        // API35 edge-to-edge fix: remove bottom padding in navmenu
+        if (Utils.isVanillaIceCreamOrLater()) {
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    navigationView,
+                    new OnApplyWindowInsetsListener() {
+                        @NonNull
+                        @Override
+                        public WindowInsetsCompat onApplyWindowInsets(@NonNull View view, @NonNull WindowInsetsCompat insets) {
+                            // apply to frame to position scrollbar properly
+                            view.setPadding(0,0,0,0);
+                            return WindowInsetsCompat.CONSUMED;
+                        }
+                    }
+            );
+        }
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         final NavBGImageView navBG = mDrawerLayout.findViewById(R.id.drawer_bg_image);
