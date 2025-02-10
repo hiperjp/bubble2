@@ -84,10 +84,16 @@ public final class Utils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
     }
 
+    // full edge-to-edge support
+    public static boolean isQOrLater() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
+    }
+
     public static boolean isROrLater() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
     }
 
+    // forced edge-to-edge
     public static boolean isVanillaIceCreamOrLater() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM;
     }

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="AppThemeDayNight" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- set for padded main window systembar background for API35 edge-to-edge -->
+        <item name="android:windowBackground">@color/primaryDark</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primaryDark</item>
         <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/primaryDark</item>

@@ -30,6 +30,10 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.viewpager.widget.PagerAdapter;
@@ -266,6 +270,29 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_reader, container, false);
         mPageNavLayout = getActivity().findViewById(R.id.pageNavLayout);
+
+        if (!Utils.isVanillaIceCreamOrLater()) {
+            getActivity().findViewById(R.id.menu_frame_reader).setFitsSystemWindows(true);
+        }else{
+            // API35 edge-to-edge fix: apply needed system bar paddings
+            ViewCompat.setOnApplyWindowInsetsListener(
+                    getActivity().findViewById(R.id.menu_frame_reader),
+                    new OnApplyWindowInsetsListener() {
+                        @NonNull
+                        @Override
+                        public WindowInsetsCompat onApplyWindowInsets(@NonNull View view, @NonNull WindowInsetsCompat insets) {
+                            // Retrieve the insets for the system bars (status bar, nav bar, etc.)
+                            Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                            // apply to toolbar as top padding (keeping bg color)
+                            View toolbar = view.findViewById(R.id.toolbar_reader);
+                            toolbar.setPadding(systemBarsInsets.left,systemBarsInsets.top,systemBarsInsets.right,toolbar.getPaddingBottom());
+                            // apply to frame to position scrollbar properly
+                            view.setPadding(systemBarsInsets.left,view.getPaddingTop(),systemBarsInsets.right,systemBarsInsets.bottom);
+                            return WindowInsetsCompat.CONSUMED;
+                        }
+                    }
+            );
+        }
 
         // setup seekbar
         mPageSeekBar = (SeekBar) mPageNavLayout.findViewById(R.id.pageSeekBar);

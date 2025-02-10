@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="AppThemeDayNight" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:textColor">@color/white</item>
         <!--item name="android:background">@color/black</item-->
+        <!-- set for padded main window systembar background for API35 edge-to-edge -->
+        <item name="android:windowBackground">?attr/colorPrimaryDark</item>
     </style>
     <style name="AboutBGStyle" parent="AppThemeDayNight">
         <item name="android:background">@null</item>
