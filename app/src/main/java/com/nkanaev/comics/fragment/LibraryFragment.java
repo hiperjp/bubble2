@@ -2,6 +2,7 @@ package com.nkanaev.comics.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -338,6 +339,10 @@ public class LibraryFragment extends Fragment
                     public void run() {
                         // crashes on Android9 if executed immediately
                         AppCompatDelegate.setDefaultNightMode(mode);
+                        // activity.recreate() does not properly recreate views
+                        Activity a = getActivity();
+                        a.finish();
+                        a.startActivity(a.getIntent());
                     }
                 },500);
                 return true;
