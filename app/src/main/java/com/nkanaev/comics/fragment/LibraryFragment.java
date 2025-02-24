@@ -210,8 +210,8 @@ public class LibraryFragment extends Fragment
         super.onCreateOptionsMenu(menu, inflater);
 
         // hack to enable icons in overflow menu
-        if(menu instanceof MenuBuilder){
-            ((MenuBuilder)menu).setOptionalIconsVisible(true);
+        if (menu instanceof MenuBuilder) {
+            ((MenuBuilder) menu).setOptionalIconsVisible(true);
         }
 
         // memorize refresh item
