@@ -9,7 +9,7 @@
     <item android:id="@+id/menu_reader_reading"
           android:title="@string/action_reading_mode"
           android:icon="@drawable/ic_book_18"
-          app:showAsAction="always">
+          app:showAsAction="ifRoom">
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@+id/reading_left_to_right"
@@ -22,7 +22,7 @@
     <item android:id="@+id/menu_reader_aspect_ratio"
           android:title="@string/action_view_mode"
           android:icon="@drawable/ic_aspect_ratio_18"
-          app:showAsAction="always">
+          app:showAsAction="ifRoom">
         <menu>
             <group android:checkableBehavior="single">
                 <item android:id="@+id/view_mode_aspect_fill"

@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
@@ -449,6 +450,11 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.reader, menu);
+
+        // hack to enable icons in overflow menu
+        if(menu instanceof MenuBuilder){
+            ((MenuBuilder)menu).setOptionalIconsVisible(true);
+        }
 
         switch (mPageViewMode) {
             case ASPECT_FILL:
