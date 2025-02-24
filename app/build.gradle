@@ -125,7 +125,7 @@ dependencies {
     // recyclerview 1.4.+ API21
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     // fragment v1.7+ API19
-    implementation 'androidx.fragment:fragment:1.8.5'
+    implementation 'androidx.fragment:fragment:1.8.6'
     // material v1.12+ API19
     implementation 'com.google.android.material:material:1.12.0'
     // constraintlayout 2.2.0+ needs API21
@@ -137,10 +137,9 @@ dependencies {
 
     // 7-Zip-JBinding-4Android 16.02-2.03+ API21
     //implementation 'com.github.omicronapps:7-Zip-JBinding-4Android:Release-16.02-2.02'
-    //implementation 'com.github.edeso:7-Zip-JBinding-4Android-test:2025.01.25'
-    //implementation 'com.github.lings03:7-Zip-JBinding-4Android:2024.12'
+    implementation 'com.github.lings03:7-Zip-JBinding-4Android:2025.01.26'
     //implementation 'com.sorrowblue.sevenzipjbinding:7-Zip-JBinding-4Android:16.02-2.03'
-    implementation 'com.github.edeso:7-Zip-JBinding-4Android:2025.01.26-1'
+    //implementation 'com.github.edeso:7-Zip-JBinding-4Android:2025.01.26-1'
 
     implementation 'com.github.luben:zstd-jni:1.5.6-9@aar'
     implementation 'org.brotli:dec:0.1.2'
