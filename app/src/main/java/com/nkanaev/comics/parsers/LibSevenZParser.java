@@ -27,7 +27,12 @@ public class LibSevenZParser extends AbstractParser {
         File file = (File) getSource();
         RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
         RandomAccessFileInStream stream = new RandomAccessFileInStream(randomAccessFile);
-        IInArchive archive = SevenZip.openInArchive(null, stream);
+        IInArchive archive;
+        try {
+            archive = SevenZip.openInArchive(null, stream);
+        } catch (SevenZipException e) {
+            throw new IOException( "Parsing file " + file.getPath() + " resulted in an error.", e );
+        }
 
         ArchiveFormat format = archive.getArchiveFormat();
         mArchiveFormat = format.getMethodName();
@@ -145,7 +150,7 @@ public class LibSevenZParser extends AbstractParser {
     public void destroy() {
         super.destroy();
 
-        mEntries.clear();
+        Utils.close(mEntries);
         mEntries = null;
         // delete cached if exists
         if (mUncompressedFile != null) {
