@@ -52,7 +52,7 @@ public class PdfRendererParser extends AbstractParser {
             // pdf sizes are relative to the document
             // let's calculate a pixel size that fits on our device keeping the aspect ratio
             float aspect = (float) page.getWidth() / page.getHeight();
-            int maxSize = Utils.getMaxPageSize();
+            int maxSize = Utils.getMaxDisplayWidth();
             int w = aspect <= 1 ? maxSize : Math.round(aspect * maxSize);
             int h = aspect >= 1 ? maxSize : Math.round(maxSize / aspect);
             bitmap = Bitmap.createBitmap(
