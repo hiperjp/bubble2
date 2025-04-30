@@ -306,11 +306,17 @@ public final class Utils {
         return displayMetrics.heightPixels;
     }
 
+    // a virtual limit based on the display pixel dimensions
     public static int getMaxPageSize(){
+        return Math.round(1.25f * getMaxDisplayWidth());
+    }
+
+    // either display pixel width or height, which ever is bigger
+    public static int getMaxDisplayWidth(){
         DisplayMetrics displayMetrics = MainApplication.getAppContext().getResources().getDisplayMetrics();
         int w = displayMetrics.widthPixels;
         int h = displayMetrics.heightPixels;
-        return Math.round(1.25f * Math.max(w, h));
+        return Math.max(w, h);
     }
 
     public static String MD5(String string) {
@@ -443,6 +449,8 @@ public final class Utils {
                 m = c.getMethod("destroy");
             } else if (Bitmap.class.isAssignableFrom(c)) {
                 m = c.getMethod("recycle");
+            } else if (Collection.class.isAssignableFrom(c)) {
+                m = c.getMethod("clear");
             } else {
                 m = c.getMethod("close");
             }
