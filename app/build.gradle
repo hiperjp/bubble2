@@ -33,7 +33,7 @@ repositories {
 }
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     //compileSdkPreview "VanillaIceCream"
     //buildToolsVersion '28.0.3'
 
@@ -42,7 +42,7 @@ android {
         namespace = "com.nkanaev.comics"
 
         minSdk = 21
-        targetSdk = 35
+        targetSdk = 36
         //targetSdkPreview "VanillaIceCream"
         multiDexEnabled = true
 
@@ -66,8 +66,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     buildFeatures {
@@ -129,7 +129,7 @@ dependencies {
     // material v1.12+ API19
     implementation 'com.google.android.material:material:1.12.0'
     // constraintlayout 2.2.0+ needs API21
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'com.github.junrar:junrar:7.5.5'
     implementation 'com.squareup.picasso:picasso:2.8'
     implementation 'org.apache.commons:commons-compress:1.27.1'
@@ -137,11 +137,11 @@ dependencies {
 
     // 7-Zip-JBinding-4Android 16.02-2.03+ API21
     //implementation 'com.github.omicronapps:7-Zip-JBinding-4Android:Release-16.02-2.02'
-    implementation 'com.github.lings03:7-Zip-JBinding-4Android:2025.01.26'
+    //implementation 'com.github.lings03:7-Zip-JBinding-4Android:2025.04.01'
     //implementation 'com.sorrowblue.sevenzipjbinding:7-Zip-JBinding-4Android:16.02-2.03'
-    //implementation 'com.github.edeso:7-Zip-JBinding-4Android:2025.01.26-1'
+    implementation 'com.github.edeso:7-Zip-JBinding-4Android:master-SNAPSHOT'
 
-    implementation 'com.github.luben:zstd-jni:1.5.6-9@aar'
+    implementation 'com.github.luben:zstd-jni:1.5.7-2@aar'
     implementation 'org.brotli:dec:0.1.2'
     // jp2-android 1.0.4+ API21, gemalto aar vanished from jcenter
     //implementation 'com.gemalto.jp2:jp2-android:1.0.3'
