@@ -816,16 +816,19 @@ public class ParserFactory {
             return mPages != null ? mPages.size() : mParser.numPages();
         }
 
+        // returns -1 for unknown pages
         private int translate(int num) throws IOException {
             parse();
-            int index = mPages != null ? mPages.get(num) : num;
-            return index;
+            if (mPages != null)
+                return (mPages.size() > num) ? mPages.get(num) : -1;
+
+            return num;
         }
 
         @Override
         public InputStream getPage(int num) throws IOException {
             num = translate(num);
-            return mParser.getPage(num);
+            return num >= 0 ? mParser.getPage(num) : null;
         }
 
         @Override
