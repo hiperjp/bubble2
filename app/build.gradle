@@ -8,7 +8,7 @@ def getVersionCode = { ->
     def stream = providers.exec {
         commandLine 'git', 'tag', '--list'
     }.standardOutput
-    return stream.asText.get().split("\n").size()
+    return stream.asText.get().split("\n").size() as Integer
 }
 
 // use git describe to generate a version name looking like
@@ -115,7 +115,7 @@ android {
 
 dependencies {
     // appcompat v1.7+ API21
-    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
     // for multiple dex files on pre-Android 5 devices
     implementation 'androidx.multidex:multidex:2.0.1'
     // startup-runtime 1.2.+ API21
@@ -125,7 +125,7 @@ dependencies {
     // recyclerview 1.4.+ API21
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     // fragment v1.7+ API19
-    implementation 'androidx.fragment:fragment:1.8.6'
+    implementation 'androidx.fragment:fragment:1.8.8'
     // material v1.12+ API19
     implementation 'com.google.android.material:material:1.12.0'
     // constraintlayout 2.2.0+ needs API21
@@ -155,14 +155,15 @@ dependencies {
 }
 
 // write deps to BuildConfig for AboutFragment to display
-task CaptureDependencies {
+tasks.register('CaptureDependencies') {
     def list = []
     configurations.getByName('implementation').allDependencies.each {
         //println "${it.group} ${it.name} ${it.version}"
         list += "${it}"
     }
-    def json= groovy.json.StringEscapeUtils.escapeJavaScript(groovy.json.JsonOutput.toJson(list))
+    def json = groovy.json.StringEscapeUtils.escapeJavaScript(groovy.json.JsonOutput.toJson(list))
     android.buildTypes.each {
         it.buildConfigField 'String', 'DEPENDENCIES', "\"${json}\""
     }
 }
+assemble.dependsOn CaptureDependencies
