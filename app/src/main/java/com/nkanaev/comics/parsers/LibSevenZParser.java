@@ -94,7 +94,7 @@ public class LibSevenZParser extends AbstractParser {
         int i = mEntries.get(num).index;
 
         ExtractOperationResult result = null;
-        ByteArrayOutputToInputStream bos = new ByteArrayOutputToInputStream();
+        Utils.ByteArrayOutputToInputStream bos = new Utils.ByteArrayOutputToInputStream();
         ISequentialOutStream sos = new ISequentialOutStream(){
             @Override
             public int write(byte[] data) throws SevenZipException {
@@ -171,42 +171,6 @@ public class LibSevenZParser extends AbstractParser {
     private class ArchiveEntry {
         public int index;
         public String path;
-    }
-/*
-    private class SequentialOutStream extends ByteArrayOutputStream implements ISequentialOutStream {
-        OutputStream outputStream;
-        private SequentialOutStream(){}
-
-        public SequentialOutStream(OutputStream os) {
-            super();
-            outputStream = os;
-        }
-
-        @Override
-        public synchronized int write(byte[] data) throws SevenZipException {
-            if (data == null || data.length == 0) {
-                throw new SevenZipException("null data");
-            }
-            Log.i(TAG, "Data to write: " + data.length);
-            try {
-                outputStream.write(data);
-            } catch (IOException e) {
-                throw new SevenZipException(e);
-            }
-            return data.length;
-        }
-    }
-    */
-
-    private class ByteArrayOutputToInputStream extends ByteArrayOutputStream {
-        public ByteArrayInputStream getInputStream() {
-            // reuse protected byte buffer, save memory
-            ByteArrayInputStream in = new ByteArrayInputStream(this.buf, 0, this.count);
-            // free reference, prevent further modification
-            this.buf = new byte[0];
-
-            return in;
-        }
     }
 
     static private void toUncompressedFile(IInArchive archive, File file) throws IOException {
