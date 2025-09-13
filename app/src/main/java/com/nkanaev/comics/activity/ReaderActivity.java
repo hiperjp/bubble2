@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment;
 import com.nkanaev.comics.BuildConfig;
 import com.nkanaev.comics.R;
 import com.nkanaev.comics.fragment.ReaderFragment;
-import androidx.annotation.NonNull;
 
 import java.io.File;
 
@@ -124,10 +123,4 @@ public class ReaderActivity extends AppCompatActivity {
         finish();
     }
 
-    /*
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-    */
 }
