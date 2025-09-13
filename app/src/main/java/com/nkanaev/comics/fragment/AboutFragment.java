@@ -23,6 +23,7 @@ import net.sf.sevenzipjbinding.SevenZip;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class AboutFragment extends Fragment implements View.OnClickListener {
@@ -75,105 +76,148 @@ public class AboutFragment extends Fragment implements View.OnClickListener {
 
         // find entries
         String out = "";
-        for (String depString : dependencyList) {
+        for (Iterator<String> it = dependencyList.iterator(); it.hasNext();) {
+            String depString =  it.next();
             for (String needle : needles) {
-                if (depString.toLowerCase().contains(needle.toLowerCase()))
+                if (depString.toLowerCase().contains(needle.toLowerCase())) {
                     out += (out.isEmpty() ? "" : "\n") + depString;
+                    it.remove();
+                }
             }
         }
         return out.isEmpty() ? "" : TextUtils.concat("\n\n", alignRight(out));
     }
 
-    private LibraryDescription[] mDescriptions = new LibraryDescription[]{
-            new LibraryDescription(
-                    "Picasso",
-                    TextUtils.concat("A powerful image downloading and caching library for Android",
-                            getDependencyEntries("Picasso")),
-                    "Apache Version 2.0",
-                    "Square",
-                    "https://github.com/square/picasso"
-            ),
-            new LibraryDescription(
-                    "Junrar",
-                    TextUtils.concat("Plain java unrar util",
-                            getDependencyEntries("Junrar")),
-                    "Unrar license",
-                    "Edmund Wagner",
-                    "https://github.com/edmund-wagner/junrar"
-            ),
-            new LibraryDescription(
-                    "Apache Commons Compress",
-                    TextUtils.concat("Defines an API for working with tar, zip and bzip2 files",
-                            getDependencyEntries("commons-compress")),
-                    "Apache Version 2.0",
-                    "Apache Software Foundation",
-                    "https://commons.apache.org/proper/commons-compress/"
-            ),
-            new LibraryDescription(
-                    "XZ Utils",
-                    TextUtils.concat("XZ Utils is free general-purpose data compression software with a high compression ratio",
-                            getDependencyEntries("tukaani")),
-                    "Public Domain",
-                    "Tukaani Developers",
-                    "http://tukaani.org/xz/java.html"
-            ),
-            new LibraryDescription(
-                    "7-Zip-JBinding-4Android",
-                    TextUtils.concat("Android library version of 7-Zip-JBinding java wrapper.\n\n",
-                            lib7zDetails(),
-                            getDependencyEntries("7-Zip-JBinding-4Android")),
-                    "GNU LGPL 2.1 or later + unRAR restriction",
-                    "Igor Pavlov, Boris Brodski, Fredrik Claesson",
-                    "https://github.com/lings03/7-Zip-JBinding-4Android"
-            ),
-            new LibraryDescription(
-                    "Zstd-jni",
-                    TextUtils.concat("JNI bindings to Zstd Library",
-                            getDependencyEntries("zstd")),
-                    "BSD license",
-                    "Luben Karavelov",
-                    "https://github.com/luben/zstd-jni"
-            ),
-            new LibraryDescription(
-                    "Brotli",
-                    TextUtils.concat("Generic-purpose lossless compression algorithm",
-                            getDependencyEntries("brotli")),
-                    "MIT license",
-                    "Google",
-                    "https://github.com/google/brotli"
-            ),
-            new LibraryDescription(
-                    "JP2 for Android",
-                    TextUtils.concat("Open-source JPEG-2000 image encoder/decoder for Android based on OpenJPEG",
-                            getDependencyEntries("jp2-android")),
-                    "BSD (2-clause) license",
-                    "ThalesGroup, Keiji",
-                    "https://github.com/keiji/JP2ForAndroid"
-            ),
-            new LibraryDescription(
-                    "Natural Sorting for Java",
-                    TextUtils.concat("Perform 'natural order' comparisons of strings in Java.",
-                            alignRight("\n\nv1.2.0")),
-                    "MIT license",
-                    "Jagoba Gascón",
-                    "https://github.com/jagobagascon/Natural-Sorting-for-Java"
-            ),
-            new LibraryDescription(
-                    "Material Design Icons",
-                    "Official icon sets from Google designed under the material design guidelines.",
-                    "Apache Version 2.0",
-                    "Google",
-                    "https://github.com/google/material-design-icons"
-            ),
-            new LibraryDescription(
-                    "Android Jetpack",
-                    TextUtils.concat("Androidx suite of tools and libraries",
-                            getDependencyEntries("androidx", "material")),
-                    "Apache Version 2.0",
-                    "Google",
-                    "https://developer.android.com/jetpack"
-            ),
-    };
+    private static CharSequence getDependencyLeftovers() {
+        String out = "";
+        for (String depString : dependencyList) {
+            out += (out.isEmpty() ? "" : "\n") + depString;
+        }
+        return out.isEmpty() ? "" : TextUtils.concat("\n\n", alignRight(out));
+    }
+
+    private static ArrayList<LibraryDescription> mDescriptions = new ArrayList();
+
+    static {
+        mDescriptions.add(
+                new LibraryDescription(
+                        "Picasso",
+                        TextUtils.concat("A powerful image downloading and caching library for Android",
+                                getDependencyEntries("Picasso")),
+                        "Apache Version 2.0",
+                        "Square",
+                        "https://github.com/square/picasso"
+                ));
+        mDescriptions.add(
+                new LibraryDescription(
+                        "Junrar",
+                        TextUtils.concat("Plain java unrar util",
+                                getDependencyEntries("Junrar")),
+                        "Unrar license",
+                        "Edmund Wagner",
+                        "https://github.com/edmund-wagner/junrar"
+                ));
+        mDescriptions.add(
+                new LibraryDescription(
+                        "Apache Commons Compress",
+                        TextUtils.concat("Defines an API for working with tar, zip and bzip2 files",
+                                getDependencyEntries("commons-compress")),
+                        "Apache Version 2.0",
+                        "Apache Software Foundation",
+                        "https://commons.apache.org/proper/commons-compress/"
+                ));
+        mDescriptions.add(
+                new LibraryDescription(
+                        "Apache Commons Imaging",
+                        TextUtils.concat("... previously known as Apache Commons Sanselan, is a library that reads and writes a variety of image formats, including fast parsing of image info (size, color space, ICC profile, etc.) and metadata.",
+                                getDependencyEntries("commons-imaging")),
+                        "Apache Version 2.0",
+                        "Apache Software Foundation",
+                        "https://commons.apache.org/proper/commons-imaging/"
+                ));
+        mDescriptions.add(
+                new LibraryDescription(
+                        "XZ Utils",
+                        TextUtils.concat("XZ Utils is free general-purpose data compression software with a high compression ratio",
+                                getDependencyEntries("tukaani")),
+                        "Public Domain",
+                        "Tukaani Developers",
+                        "http://tukaani.org/xz/java.html"
+                ));
+        mDescriptions.add(
+                new LibraryDescription(
+                        "7-Zip-JBinding-4Android",
+                        TextUtils.concat("Android library version of 7-Zip-JBinding java wrapper.\n\n",
+                                lib7zDetails(),
+                                getDependencyEntries("7-Zip-JBinding-4Android")),
+                        "GNU LGPL 2.1 or later + unRAR restriction",
+                        "Igor Pavlov, Boris Brodski, Fredrik Claesson",
+                        "https://github.com/lings03/7-Zip-JBinding-4Android"
+                ));
+        mDescriptions.add(
+                new LibraryDescription(
+                        "Zstd-jni",
+                        TextUtils.concat("JNI bindings to Zstd Library",
+                                getDependencyEntries("zstd")),
+                        "BSD license",
+                        "Luben Karavelov",
+                        "https://github.com/luben/zstd-jni"
+                ));
+        mDescriptions.add(
+                new LibraryDescription(
+                        "Brotli",
+                        TextUtils.concat("Generic-purpose lossless compression algorithm",
+                                getDependencyEntries("brotli")),
+                        "MIT license",
+                        "Google",
+                        "https://github.com/google/brotli"
+                ));
+        mDescriptions.add(
+                new LibraryDescription(
+                        "JP2 for Android",
+                        TextUtils.concat("Open-source JPEG-2000 image encoder/decoder for Android based on OpenJPEG",
+                                getDependencyEntries("jp2-android")),
+                        "BSD (2-clause) license",
+                        "ThalesGroup, Keiji",
+                        "https://github.com/keiji/JP2ForAndroid"
+                ));
+        mDescriptions.add(
+                new LibraryDescription(
+                        "Natural Sorting for Java",
+                        TextUtils.concat("Perform 'natural order' comparisons of strings in Java.",
+                                alignRight("\n\nv1.2.0")),
+                        "MIT license",
+                        "Jagoba Gascón",
+                        "https://github.com/jagobagascon/Natural-Sorting-for-Java"
+                ));
+        mDescriptions.add(
+                new LibraryDescription(
+                        "Material Design Icons",
+                        "Official icon sets from Google designed under the material design guidelines.",
+                        "Apache Version 2.0",
+                        "Google",
+                        "https://github.com/google/material-design-icons"
+                ));
+        mDescriptions.add(
+                new LibraryDescription(
+                        "Android Jetpack",
+                        TextUtils.concat("Androidx suite of tools and libraries",
+                                getDependencyEntries("androidx", "material")),
+                        "Apache Version 2.0",
+                        "Google",
+                        "https://developer.android.com/jetpack"
+                ));
+
+        CharSequence others = getDependencyLeftovers();
+        if (!others.isEmpty())
+            mDescriptions.add(new LibraryDescription(
+                    "Others",
+                    others,
+                    "",
+                    "",
+                    ""
+            ));
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -193,15 +237,15 @@ public class AboutFragment extends Fragment implements View.OnClickListener {
         appLayout.setOnClickListener(this);
 
         LinearLayout libsLayout = (LinearLayout) view.findViewById(R.id.about_libraries);
-        for (int i = 0; i < mDescriptions.length; i++) {
+        for (LibraryDescription ld : mDescriptions) {
             View cardView = inflater.inflate(R.layout.card_deps, libsLayout, false);
 
-            ((TextView) cardView.findViewById(R.id.libraryName)).setText(mDescriptions[i].name);
-            ((TextView) cardView.findViewById(R.id.libraryCreator)).setText(mDescriptions[i].owner);
-            ((TextView) cardView.findViewById(R.id.libraryDescription)).setText(mDescriptions[i].description);
-            ((TextView) cardView.findViewById(R.id.libraryLicense)).setText(mDescriptions[i].license);
+            ((TextView) cardView.findViewById(R.id.libraryName)).setText(ld.name);
+            ((TextView) cardView.findViewById(R.id.libraryCreator)).setText(ld.owner);
+            ((TextView) cardView.findViewById(R.id.libraryDescription)).setText(ld.description);
+            ((TextView) cardView.findViewById(R.id.libraryLicense)).setText(ld.license);
 
-            cardView.setTag(mDescriptions[i].link);
+            cardView.setTag(ld.link);
             cardView.setOnClickListener(this);
             libsLayout.addView(cardView);
         }
