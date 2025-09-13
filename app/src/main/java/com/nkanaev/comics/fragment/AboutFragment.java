@@ -209,7 +209,7 @@ public class AboutFragment extends Fragment implements View.OnClickListener {
                 ));
 
         CharSequence others = getDependencyLeftovers();
-        if (!others.isEmpty())
+        if (others.length()>0)
             mDescriptions.add(new LibraryDescription(
                     "Others",
                     others,
