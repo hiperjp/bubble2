@@ -17,6 +17,7 @@ import android.util.TypedValue;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
+import android.widget.Toast;
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.StyleRes;
@@ -787,5 +788,20 @@ public final class Utils {
     public static void disablePendingTransition(Activity activity){
         if (activity!=null)
             activity.overridePendingTransition(0,0);
+    }
+
+    public static void toast( CharSequence message) {
+        Toast.makeText(MainApplication.getAppContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    public static class ByteArrayOutputToInputStream extends ByteArrayOutputStream {
+        public ByteArrayInputStream getInputStream() {
+            // reuse protected byte buffer, save memory
+            ByteArrayInputStream in = new ByteArrayInputStream(this.buf, 0, this.count);
+            // free reference, prevent further modification
+            this.buf = new byte[0];
+
+            return in;
+        }
     }
 }
