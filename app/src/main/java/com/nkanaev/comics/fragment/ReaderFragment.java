@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -24,6 +25,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -57,11 +60,9 @@ import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
+import org.apache.commons.imaging.formats.jpeg.exif.ExifRewriter;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -124,16 +125,11 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         RESOURCE_VIEW_MODE.put(R.id.view_mode_fit_width, Constants.PageViewMode.FIT_WIDTH);
     }
 
-    /*
-    private ActivityResultLauncher<String> requestPermissionLauncher =
+    // callback launch exportCurrentPage after permission was requested
+    private ActivityResultLauncher exportPageRequestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    Toast.makeText(getContext(), "Permission is accepted", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(), "Permission is denied", Toast.LENGTH_SHORT).show();
-                }
+                exportCurrentPage(false);
             });
-    */
 
     public static ReaderFragment create(int comicId) {
         ReaderFragment fragment = new ReaderFragment();
@@ -444,10 +440,12 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         super.onPrepareOptionsMenu(menu);
 
         // TODO: fix up page export permission bs
-        menu.findItem(R.id.menu_reader_export).setVisible(BuildConfig.DEBUG);
+        //menu.findItem(R.id.menu_reader_export).setVisible(BuildConfig.DEBUG);
     }
 
     @Override
+    // suppress restricted api warning for overflow menu hack
+    @SuppressWarnings("RestrictedApi")
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.reader, menu);
 
@@ -1134,77 +1132,80 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
     }
 
     private void exportCurrentPage() {
+        exportCurrentPage(true );
+    }
+
+    private void exportCurrentPage( boolean requestPermission ) {
         int pageNum = getCurrentPage();
-        int index = pageNum-1;
+        int index = pageNum - 1;
         File folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        FileOutputStream fOut = null;
+        File file = new File(folder,
+                (mFile.isDirectory() ? mFile.getName() : Utils.removeExtensionIfAny(mFile.getName())) +
+                        ".page" + pageNum + ".jpg");
+
         Bitmap bitmap = null;
+        InputStream is = null;
+        OutputStream os = null;
         try {
-            if (folder==null)
-                throw new Exception("Cannot determine Downloads folder.");
-            else if (!folder.isDirectory() && !folder.mkdirs())
-                throw new Exception("Couldn't create Downloads folder.");
-            else if (mFile==null)
-                throw new Exception("Not a file");
+            if (folder==null) {
+                Utils.toast("Cannot determine Downloads folder.");
+                return;
+            }
+            else if (!folder.isDirectory() && !folder.mkdirs()) {
+                Utils.toast("Couldn't create Downloads folder.");
+                return;
+            }
+            else if (mFile==null) {
+                Utils.toast("Not a file");
+                return;
+            }
 
             String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-
-            /*
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    requestPermissionLauncher.launch(permission, ActivityOptionsCompat.makeBasic());
-                }
-            });
-            */
-
-            //if (true) return;
-
             if (ContextCompat.checkSelfPermission(getActivity(), permission)
                     != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{permission},
-                        1);
-                // still no permission?
-                if (ContextCompat.checkSelfPermission(getActivity(), permission)
-                        != PackageManager.PERMISSION_GRANTED)
-                    throw new Exception("No write permission.");
+                if (requestPermission)
+                    exportPageRequestPermissionLauncher.launch(permission);
+                else
+                    Utils.toast("Permission to write to storage was denied");
+                return;
             }
 
             Map metadata = mParser.getPageMetaData(index);
             String mime = (String) metadata.get(Parser.PAGEMETADATA_KEY_MIME);
-            File file = new File(folder,
-                    (mFile.isDirectory()?mFile.getName():Utils.removeExtensionIfAny(mFile.getName()))+
-                            ".page"+pageNum+".jpg");
-            if (mime!=null && mime.endsWith("/jpeg")) {
-                InputStream is = mParser.getPage(index);
-                Utils.copyToFile(is, file);
+
+            // if possible we reuse an existing jpeg encoding
+            // we strip exif tags tho so the export won't have any date field
+            // causing a gallery app to list it way back
+            if (mime != null && mime.endsWith("/jpeg")) {
+                is = mParser.getPage(index);
+                os = new Utils.ByteArrayOutputToInputStream();
+                new ExifRewriter().removeExifMetadata(is,os);
+                Utils.copyToFile(((Utils.ByteArrayOutputToInputStream)os).getInputStream(), file);
             }
+            // alternatively we compress the bitmap of the PageImageView
             else {
-                bitmap = null; //BitmapFactory.decodeStream(is);
-                if (bitmap == null){
+                bitmap = null;
+                if (bitmap == null) {
                     MyTarget t = mTargets.get(index);
                     View v = t.mLayout.get();
                     PageImageView piv = v.findViewById(R.id.pageImageView);
-                    bitmap = ((BitmapDrawable)piv.getDrawable()).getBitmap();
+                    bitmap = ((BitmapDrawable) piv.getDrawable()).getBitmap();
                 }
-                fOut = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 95, fOut);
+                os = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 95, os);
             }
+            File shortFile = new File(folder.getName(), file.getName());
+            Utils.toast("Exported as '" + shortFile.toString() + "'");
+            MediaScannerConnection.scanFile( getContext(),
+                    new String[]{file.toString()}, null, null);
         } catch (Exception e) {
+            Utils.toast("Failed to export page.");
             throw new RuntimeException(e);
         } finally {
-            Utils.close(fOut);
-            //Utils.close(bitmap);
+            Utils.close(is);
+            Utils.close(os);
+            Utils.close(bitmap);
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 1) {
-            if (permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d("granted","profit+1");
-            }
-        }
-    }
 }
