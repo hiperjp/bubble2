@@ -1,10 +1,7 @@
 package com.nkanaev.comics.fragment;
 
 import android.Manifest;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -16,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -1148,63 +1146,99 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         OutputStream os = null;
         try {
             if (folder==null) {
-                Utils.toast("Cannot determine Downloads folder.");
+                Utils.toast("Cannot determine Downloads folder.", getContext());
                 return;
             }
             else if (!folder.isDirectory() && !folder.mkdirs()) {
-                Utils.toast("Couldn't create Downloads folder.");
+                Utils.toast("Couldn't create Downloads folder.", getContext());
                 return;
             }
             else if (mFile==null) {
-                Utils.toast("Not a file");
+                Utils.toast("Not a file", getContext());
                 return;
             }
 
             String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-            if (ContextCompat.checkSelfPermission(getActivity(), permission)
+            if (!Utils.isQOrLater() && ContextCompat.checkSelfPermission(getActivity(), permission)
                     != PackageManager.PERMISSION_GRANTED) {
                 if (requestPermission)
                     exportPageRequestPermissionLauncher.launch(permission);
                 else
-                    Utils.toast("Permission to write to storage was denied");
+                    Utils.toast("Permission to write to storage was denied", getContext());
                 return;
             }
 
             Map metadata = mParser.getPageMetaData(index);
             String mime = (String) metadata.get(Parser.PAGEMETADATA_KEY_MIME);
 
-            // if possible we reuse an existing jpeg encoding
-            // we strip exif tags tho so the export won't have any date field
-            // causing a gallery app to list it way back
+            // on Android10+ try to use Mediastore to circumvent permission issues
+            Uri imageUri = null;
+            if (Utils.isQOrLater()) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.DISPLAY_NAME, file.getName());
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                values.put(MediaStore.Images.Media.RELATIVE_PATH, folder.getName());
+                imageUri = getContext().getContentResolver().insert(
+                        MediaStore.Downloads.EXTERNAL_CONTENT_URI
+                        , values);
+            }
+
+            // if possible reuse an existing jpeg encoding
+            // strip exif tags so the export won't have any
+            // date fields causing gallery apps to list it way back
+            boolean done = false;
             if (mime != null && mime.endsWith("/jpeg")) {
-                is = mParser.getPage(index);
-                os = new Utils.ByteArrayOutputToInputStream();
-                new ExifRewriter().removeExifMetadata(is,os);
-                Utils.copyToFile(((Utils.ByteArrayOutputToInputStream)os).getInputStream(), file);
+                // on Android5 ExifRewriter fails with ?!
+                // "java.lang.NoClassDefFoundError: org.apache.commons.compress.archivers.sevenz.SevenZFile$$ExternalSyntheticLambda5"
+                // no biggie, catch and gracefully recompress below
+                try {
+                    // if for some reason mediastore does return null, fallback to direct write
+                    if (imageUri!=null)
+                        os = getContext().getContentResolver().openOutputStream(imageUri);
+                        // default for Android9-
+                    else
+                        os = new FileOutputStream(file);
+
+                    is = mParser.getPage(index);
+                    Utils.ByteArrayOutputToInputStream buffer = new Utils.ByteArrayOutputToInputStream();
+                    // strip exif data (see above)
+                    new ExifRewriter().removeExifMetadata(is, buffer);
+                    //Utils.copyToFile(((Utils.ByteArrayOutputToInputStream)os).getInputStream(), file);
+                    Utils.copyToOutputStream(buffer.getInputStream(), os);
+                    done = true;
+                } catch (Throwable t){
+                    Log.e("ReaderFragment", "reuse jpeg failed", t);
+                } finally {
+                    Utils.close(is);
+                    Utils.close(os);
+                }
             }
             // alternatively we compress the bitmap of the PageImageView
-            else {
-                bitmap = null;
-                if (bitmap == null) {
-                    MyTarget t = mTargets.get(index);
-                    View v = t.mLayout.get();
-                    PageImageView piv = v.findViewById(R.id.pageImageView);
-                    bitmap = ((BitmapDrawable) piv.getDrawable()).getBitmap();
-                }
-                os = new FileOutputStream(file);
+            if (!done) {
+                // if for some reason mediastore does return null, fallback to direct write
+                if (imageUri!=null)
+                    os = getContext().getContentResolver().openOutputStream(imageUri);
+                    // default for Android9-
+                else
+                    os = new FileOutputStream(file);
+
+                MyTarget t = mTargets.get(index);
+                View v = t.mLayout.get();
+                PageImageView piv = v.findViewById(R.id.pageImageView);
+                bitmap = ((BitmapDrawable) piv.getDrawable()).getBitmap();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 95, os);
             }
             File shortFile = new File(folder.getName(), file.getName());
-            Utils.toast("Exported as '" + shortFile.toString() + "'");
+            Utils.toast("Exported as '" + shortFile.toString() + "'", getContext());
+            // make sure file is scanned so it is properly listed in galleries
             MediaScannerConnection.scanFile( getContext(),
                     new String[]{file.toString()}, null, null);
         } catch (Exception e) {
-            Utils.toast("Failed to export page.");
-            throw new RuntimeException(e);
+            Utils.toast(e.getMessage(), getContext());
+            Log.e("ReaderFragment", "page export failed", e);
         } finally {
             Utils.close(is);
             Utils.close(os);
-            Utils.close(bitmap);
         }
     }
 

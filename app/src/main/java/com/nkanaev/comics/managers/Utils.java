@@ -413,6 +413,10 @@ public final class Utils {
 
     public static void copyToFile(InputStream inStream, File file) throws IOException {
         OutputStream outStream = new FileOutputStream(file);
+        copyToOutputStream(inStream,outStream);
+    }
+
+    public static void copyToOutputStream(InputStream inStream, OutputStream outStream) throws IOException {
         byte[] buffer = new byte[4 * 1024];
         int bytesRead;
         while ((bytesRead = inStream.read(buffer)) != -1) {
@@ -790,8 +794,13 @@ public final class Utils {
             activity.overridePendingTransition(0,0);
     }
 
-    public static void toast( CharSequence message) {
-        Toast.makeText(MainApplication.getAppContext(), message, Toast.LENGTH_SHORT).show();
+    public static void toast(CharSequence message) {
+        Context context = MainApplication.getAppContext();
+        toast(message, context);
+    }
+
+    public static void toast(CharSequence message, Context context) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     public static class ByteArrayOutputToInputStream extends ByteArrayOutputStream {
