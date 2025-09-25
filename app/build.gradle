@@ -33,7 +33,7 @@ repositories {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 36.1
     //compileSdkPreview "VanillaIceCream"
     //buildToolsVersion '28.0.3'
 
@@ -42,7 +42,7 @@ android {
         namespace = "com.nkanaev.comics"
 
         minSdk = 21
-        targetSdk = 36
+        targetSdk = 36.1
         //targetSdkPreview "VanillaIceCream"
         multiDexEnabled = true
 
