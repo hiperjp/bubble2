@@ -84,6 +84,7 @@ public class LibraryFragment extends Fragment
         super.onCreate(savedInstanceState);
 
         // If you have access to the external storage, do whatever you need
+        // https://developer.android.com/training/data-storage/manage-all-files#operations-allowed-manage-external-storage
         if (Utils.isROrLater()) {
             if (!Environment.isExternalStorageManager()) {
                 // If you don't have access, launch a new activity to show the user the system's dialog
