@@ -86,6 +86,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
     private View mPageInfoButton;
 
     private GestureDetector mGestureDetector;
+    private GestureDetector mToolbarGestureDetector;
 
     private final static HashMap<Integer, Constants.PageViewMode> RESOURCE_VIEW_MODE;
     // default to not showing menu
@@ -249,7 +250,8 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
                 .addRequestHandler(mComicHandler)
                 .build();
 
-        mGestureDetector = new GestureDetector(getActivity(), new MyTouchListener());
+        mGestureDetector = new GestureDetector(getActivity(), new ReaderOnGestureListener());
+        mToolbarGestureDetector =  new GestureDetector(getActivity(), new ToolbarOnGestureListener());
 
         SharedPreferences preferences = MainApplication.getPreferences();
         int viewModeInt = preferences.getInt(
@@ -288,6 +290,26 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
                     }
             );
         }
+
+        // add gesture listener for toolbar
+        View menuView = getActivity().findViewById(R.id.menu_frame_reader);
+        // set with listener after view is initialized
+        menuView.getViewTreeObserver().addOnPreDrawListener(
+                new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        View toolbarView = menuView.findViewById(R.id.toolbar_reader);
+                            toolbarView.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                return mToolbarGestureDetector.onTouchEvent(event);
+                            }
+                        });
+                        menuView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        // view is measured and laid out
+                        return true;
+                    }
+                });
 
         // setup seekbar
         mPageSeekBar = (SeekBar) mPageNavLayout.findViewById(R.id.pageSeekBar);
@@ -869,7 +891,7 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         }
     }
 
-    private class MyTouchListener extends GestureDetector.SimpleOnGestureListener {
+    private class ReaderOnGestureListener extends GestureDetector.SimpleOnGestureListener {
         /**
          * switch menus and pageseekbar on/off on long press anywhere
          *
@@ -946,6 +968,39 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
             }
 
             return false;
+        }
+
+        /**
+         * Drag from top edge shows toolbar/seekbar
+         */
+        @Override
+        public boolean onScroll(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float distanceX, float distanceY) {
+            float diffY = e2.getY() - e1.getY();
+            float startY = e1.getY();
+            //Log.i("scroll2", startY + " / " + diffY );
+            if (isFullscreen() && startY <= 30 && diffY > 70) {
+                setFullscreen( false );
+                return true;
+            }
+
+            return super.onScroll(e1, e2, distanceX, distanceY);
+        }
+    }
+
+    private class ToolbarOnGestureListener extends GestureDetector.SimpleOnGestureListener {
+        /**
+         * Drag up on toolbar hides toolbar/seekbar
+         */
+        @Override
+        public boolean onScroll(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float distanceX, float distanceY) {
+            float diffY = e2.getY() - e1.getY();
+            //float startY = e1.getY();
+            //Log.i("scroll3", startY + " / " + diffY );
+            if ( diffY <= -50 ) {
+                setFullscreen( true );
+            }
+
+            return true;
         }
     }
 
