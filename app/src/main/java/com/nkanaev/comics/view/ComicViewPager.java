@@ -17,10 +17,14 @@ public class ComicViewPager extends ViewPager {
 
     public ComicViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
+        // Android 16 optimization: disable page transition animations for instant navigation
+        setPageTransformer(false, null);
     }
 
     public ComicViewPager(Context context) {
         super(context);
+        // Android 16 optimization: disable page transition animations for instant navigation
+        setPageTransformer(false, null);
     }
 
     public void setOnSwipeOutListener(OnSwipeOutListener listener) {

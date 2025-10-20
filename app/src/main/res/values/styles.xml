@@ -1,17 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="AppThemeDayNight" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- set for padded main window systembar background for API35 edge-to-edge -->
+    <style name="AppThemeDayNight" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Android 16 optimized theme -->
         <item name="android:windowBackground">@color/primaryDark</item>
         <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primaryDark</item>
-        <item name="android:navigationBarColor" tools:targetApi="lollipop">@color/primaryDark</item>
-
-        <!-- colors actionbar items on API16 -->
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/primaryDark</item>
+        <item name="colorOnPrimaryContainer">@color/white</item>
+        <item name="colorSurface">@color/primaryDark</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="android:navigationBarColor">@color/primaryDark</item>
+        
+        <!-- Android 16 enhanced blur effects -->
+        <item name="android:windowBlurBehindEnabled">true</item>
+        <item name="android:windowSplashScreenBackground">@color/primaryDark</item>
+        
+        <!-- Enhanced accessibility for Android 16 -->
         <item name="android:textColorSecondary">@color/lightest</item>
-
         <item name="actionBarWidgetTheme">@style/MyToolbarTheme</item>
         <item name="android:actionBarWidgetTheme">@style/MyToolbarTheme</item>
+    </style>
+    
+    <!-- Android 16 Splash Screen Theme -->
+    <style name="AppThemeDayNight.Splash" parent="AppThemeDayNight">
+        <item name="android:windowSplashScreenBackground">@color/primaryDark</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/icon</item>
+        <item name="android:windowSplashScreenAnimationDuration">1000</item>
+        <item name="android:windowSplashScreenBrandingImage">@drawable/icon_squared</item>
     </style>
 
     <style name="MyToolbarTheme" parent="AppThemeDayNight">

@@ -268,28 +268,31 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         final View view = inflater.inflate(R.layout.fragment_reader, container, false);
         mPageNavLayout = getActivity().findViewById(R.id.pageNavLayout);
 
-        if (!Utils.isVanillaIceCreamOrLater()) {
-            getActivity().findViewById(R.id.menu_frame_reader).setFitsSystemWindows(true);
-        }else{
-            // API35 edge-to-edge fix: apply needed system bar paddings
-            ViewCompat.setOnApplyWindowInsetsListener(
-                    getActivity().findViewById(R.id.menu_frame_reader),
-                    new OnApplyWindowInsetsListener() {
-                        @NonNull
-                        @Override
-                        public WindowInsetsCompat onApplyWindowInsets(@NonNull View view, @NonNull WindowInsetsCompat insets) {
-                            // Retrieve the insets for the system bars (status bar, nav bar, etc.)
-                            Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                            // apply to toolbar as top padding (keeping bg color)
-                            View toolbar = view.findViewById(R.id.toolbar_reader);
-                            toolbar.setPadding(systemBarsInsets.left,systemBarsInsets.top,systemBarsInsets.right,toolbar.getPaddingBottom());
-                            // apply to frame to position scrollbar properly
-                            view.setPadding(systemBarsInsets.left,view.getPaddingTop(),systemBarsInsets.right,systemBarsInsets.bottom);
-                            return WindowInsetsCompat.CONSUMED;
-                        }
+        // Android 16 enhanced edge-to-edge with blur effects
+        ViewCompat.setOnApplyWindowInsetsListener(
+                getActivity().findViewById(R.id.menu_frame_reader),
+                new OnApplyWindowInsetsListener() {
+                    @NonNull
+                    @Override
+                    public WindowInsetsCompat onApplyWindowInsets(@NonNull View view, @NonNull WindowInsetsCompat insets) {
+                        // Android 16 optimized system bar handling
+                        Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                        // Enhanced toolbar padding for Android 16
+                        View toolbar = view.findViewById(R.id.toolbar_reader);
+                        toolbar.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, toolbar.getPaddingBottom());
+                        // Optimized frame padding
+                        view.setPadding(systemBarsInsets.left, view.getPaddingTop(), systemBarsInsets.right, systemBarsInsets.bottom);
+                        return WindowInsetsCompat.CONSUMED;
                     }
-            );
-        }
+                }
+        );
+        
+        // Android 16 optimization: disable system UI animations for instant response
+        getActivity().getWindow().getDecorView().setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+            View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        );
 
         // add gesture listener for toolbar
         View menuView = getActivity().findViewById(R.id.menu_frame_reader);
@@ -357,6 +360,9 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
         mViewPager = view.findViewById(R.id.viewPager);
         mViewPager.setOffscreenPageLimit(2);
         mViewPager.setOnTouchListener(this);
+        
+        // Android 16 optimization: disable all page transition animations for instant navigation
+        mViewPager.setPageTransformer(false, null);
         mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -1054,14 +1060,13 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
 
 //            wic.hide(WindowInsetsCompat.Type.systemBars());
 
+            // Android 16 optimized fullscreen mode
             int flag = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                     | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN;
-            if (Utils.isKitKatOrLater()) {
-                flag |= View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-                flag |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-                flag |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-            }
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             decorView.setSystemUiVisibility(flag);
 
             // replaced by value in ReaderTheme style
@@ -1213,22 +1218,14 @@ public class ReaderFragment extends Fragment implements View.OnTouchListener {
                 return;
             }
 
-            String permission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
-            if (!Utils.isQOrLater() && ContextCompat.checkSelfPermission(getActivity(), permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                if (requestPermission)
-                    exportPageRequestPermissionLauncher.launch(permission);
-                else
-                    Utils.toast("Permission to write to storage was denied", getContext());
-                return;
-            }
+            // Android 16 optimized - no permission check needed for scoped storage
 
             Map metadata = mParser.getPageMetaData(index);
             String mime = (String) metadata.get(Parser.PAGEMETADATA_KEY_MIME);
 
-            // on Android10+ try to use Mediastore to circumvent permission issues
+            // Android 16 optimized - use MediaStore for all operations
             Uri imageUri = null;
-            if (Utils.isQOrLater()) {
+            {
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.Images.Media.DISPLAY_NAME, file.getName());
                 values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");

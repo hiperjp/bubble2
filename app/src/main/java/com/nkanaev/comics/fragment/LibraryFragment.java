@@ -83,26 +83,14 @@ public class LibraryFragment extends Fragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // If you have access to the external storage, do whatever you need
-        // https://developer.android.com/training/data-storage/manage-all-files#operations-allowed-manage-external-storage
-        if (Utils.isROrLater()) {
-            if (!Environment.isExternalStorageManager()) {
-                // If you don't have access, launch a new activity to show the user the system's dialog
-                // to allow access to the external storage
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                Uri uri = Uri.fromParts("package", MainActivity.PACKAGE_NAME, null);
-                intent.setData(uri);
-                startActivity(intent);
-            }
-        } else {
-            String permission = Manifest.permission.READ_EXTERNAL_STORAGE;
-            if (ContextCompat.checkSelfPermission(getActivity(), permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{permission},
-                        1);
-            }
+        // Android 16 optimized storage permissions
+        if (!Environment.isExternalStorageManager()) {
+            // Launch system dialog for Android 16 storage access
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+            Uri uri = Uri.fromParts("package", MainActivity.PACKAGE_NAME, null);
+            intent.setData(uri);
+            startActivity(intent);
         }
 
         /*

@@ -47,76 +47,30 @@ public final class Utils {
         return Math.round(displayMetrics.widthPixels / displayMetrics.density);
     }
 
-    public static boolean isIceCreamSandwitchOrLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+    // Android 16 optimized - all compatibility checks removed since minSdk = 36
+    public static boolean isAndroid16OrLater() {
+        return true; // Always true since minSdk = 36
     }
-
-    public static boolean isHoneycombOrLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-    }
-
-    public static boolean isHoneycombMR1orLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1;
-    }
-
-    public static boolean isJellyBeanMR1orLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
-    }
-
-    public static boolean isKitKatOrLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-    }
-
-    public static boolean isLollipopOrLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-    }
-
-    public static boolean isMarshmallowOrLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
-    }
-
-    // FileChannel
-    public static boolean isNougatOrLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
-    }
-
-    // java.nio.path
-    public static boolean isOreoOrLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
-    }
-
-    // full edge-to-edge support
-    public static boolean isQOrLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
-    }
-
-    public static boolean isROrLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
-    }
-
-    // forced edge-to-edge
-    public static boolean isVanillaIceCreamOrLater() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM;
-    }
+    
+    // Legacy method compatibility - always return true for Android 16
+    public static boolean isOreoOrLater() { return true; }
+    public static boolean isLollipopOrLater() { return true; }
+    public static boolean isKitKatOrLater() { return true; }
+    public static boolean isJellyBeanMR1orLater() { return true; }
 
     public static int getHeapSize(Context context) {
         ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         boolean isLargeHeap = (context.getApplicationInfo().flags & ApplicationInfo.FLAG_LARGE_HEAP) != 0;
         int memoryClass = am.getMemoryClass();
-        if (isLargeHeap && Utils.isHoneycombOrLater()) {
+        if (isLargeHeap) {
             memoryClass = am.getLargeMemoryClass();
         }
         return 1024 * memoryClass;
     }
 
     public static int calculateBitmapSize(Bitmap bitmap) {
-        int sizeInBytes;
-        if (Utils.isHoneycombMR1orLater()) {
-            sizeInBytes = bitmap.getByteCount();
-        } else {
-            sizeInBytes = bitmap.getRowBytes() * bitmap.getHeight();
-        }
-        return sizeInBytes / 1024;
+        // Android 16 optimized - always use getByteCount()
+        return bitmap.getByteCount() / 1024;
     }
 
     public static boolean isImage(String filename) {
@@ -790,8 +744,21 @@ public final class Utils {
     }
 
     public static void disablePendingTransition(Activity activity){
-        if (activity!=null)
-            activity.overridePendingTransition(0,0);
+        if (activity!=null) {
+            // Android 16 optimization: disable all activity transitions for instant navigation
+            activity.overridePendingTransition(0, 0);
+        }
+    }
+    
+    // Android 16 optimization: disable all animations globally
+    public static void disableAllAnimations(Activity activity) {
+        if (activity != null) {
+            // Disable activity transitions
+            activity.overridePendingTransition(0, 0);
+            
+            // Disable window animations
+            activity.getWindow().setWindowAnimations(0);
+        }
     }
 
     public static void toast(CharSequence message) {

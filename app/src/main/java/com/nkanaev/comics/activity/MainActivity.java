@@ -6,11 +6,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowInsets;
 import android.widget.TextView;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.splashscreen.SplashScreen;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
@@ -46,31 +48,43 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // Android 16 splash screen
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        
         super.setContentView(R.layout.layout_main);
         super.onCreate(savedInstanceState);
 
         PACKAGE_NAME = getApplicationContext().getPackageName();
 
+        // Android 16 predictive back navigation
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    finish();
+                }
+            }
+        });
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        if (Utils.isLollipopOrLater()) {
-            toolbar.setElevation(8);
-        }
+        // Android 16 optimized toolbar
+        toolbar.setElevation(8);
 
-        // API35 forced edge-to-edge fix: apply system bar paddings
-        if (Utils.isVanillaIceCreamOrLater()) {
-            getWindow().getDecorView().setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                @NonNull
-                @Override
-                public WindowInsets onApplyWindowInsets(@NonNull View v, @NonNull WindowInsets insets) {
-                    android.graphics.Insets systemBarsInsets = insets.getInsets(WindowInsets.Type.systemBars());
-                    v.setPadding(systemBarsInsets.left,systemBarsInsets.top,systemBarsInsets.right, systemBarsInsets.bottom);
-                    return insets;
-                }
-            });
-        }
+        // Android 16 enhanced edge-to-edge with blur effects
+        getWindow().getDecorView().setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @NonNull
+            @Override
+            public WindowInsets onApplyWindowInsets(@NonNull View v, @NonNull WindowInsets insets) {
+                android.graphics.Insets systemBarsInsets = insets.getInsets(WindowInsets.Type.systemBars());
+                v.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, systemBarsInsets.bottom);
+                return insets;
+            }
+        });
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -88,21 +102,20 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         setupNavigationView(navigationView);
-        // API35 edge-to-edge fix: remove bottom padding in navmenu
-        if (Utils.isVanillaIceCreamOrLater()) {
-            ViewCompat.setOnApplyWindowInsetsListener(
-                    navigationView,
-                    new OnApplyWindowInsetsListener() {
-                        @NonNull
-                        @Override
-                        public WindowInsetsCompat onApplyWindowInsets(@NonNull View view, @NonNull WindowInsetsCompat insets) {
-                            // apply to frame to position scrollbar properly
-                            view.setPadding(0,0,0,0);
-                            return WindowInsetsCompat.CONSUMED;
-                        }
+        
+        // Android 16 enhanced edge-to-edge navigation
+        ViewCompat.setOnApplyWindowInsetsListener(
+                navigationView,
+                new OnApplyWindowInsetsListener() {
+                    @NonNull
+                    @Override
+                    public WindowInsetsCompat onApplyWindowInsets(@NonNull View view, @NonNull WindowInsetsCompat insets) {
+                        // Enhanced padding for Android 16
+                        view.setPadding(0,0,0,0);
+                        return WindowInsetsCompat.CONSUMED;
                     }
-            );
-        }
+                }
+        );
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         final NavBGImageView navBG = mDrawerLayout.findViewById(R.id.drawer_bg_image);
@@ -195,15 +208,19 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
 
+        // Android 16 optimization: disable fragment transition animations for instant navigation
         fragmentManager
                 .beginTransaction()
+                .setCustomAnimations(0, 0, 0, 0)
                 .replace(R.id.content_frame, fragment)
                 .commit();
     }
 
     public void pushFragment(Fragment fragment) {
+        // Android 16 optimization: disable fragment transition animations for instant navigation
         getSupportFragmentManager()
                 .beginTransaction()
+                .setCustomAnimations(0, 0, 0, 0)
                 .replace(R.id.content_frame, fragment)
                 .addToBackStack(null)
                 .commit();

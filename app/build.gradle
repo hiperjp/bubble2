@@ -46,9 +46,8 @@ android {
         applicationId = "com.github.edeso.bubble2"
         namespace = "com.nkanaev.comics"
 
-        minSdk = 21
+        minSdk = 36
         targetSdk = 36
-        //targetSdkPreview "VanillaIceCream"
         multiDexEnabled = true
 
         versionName = getVersionName()
@@ -119,23 +118,21 @@ android {
 }
 
 dependencies {
-    // appcompat v1.7+ API21
+    // Android 16 optimized dependencies
     implementation 'androidx.appcompat:appcompat:1.7.1'
-    // for multiple dex files on pre-Android 5 devices
     implementation 'androidx.multidex:multidex:2.0.1'
-    // startup-runtime 1.2.+ API21
     implementation 'androidx.startup:startup-runtime:1.2.0'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
-    // recyclerview 1.4.+ API21
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    // fragment v1.7+ API19
     implementation 'androidx.fragment:fragment:1.8.9'
     implementation 'androidx.activity:activity:1.11.0'
-    // material v1.12+ API19
+    // Material 3 for Android 16 expressive design
     implementation 'com.google.android.material:material:1.13.0'
-    // constraintlayout 2.2.0+ needs API21
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    // Android 16 splash screen API
+    implementation 'androidx.core:core-splashscreen:1.0.1'
+    // SwipeRefreshLayout for pull-to-refresh functionality
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'com.github.junrar:junrar:7.5.5'
     //noinspection NewerVersionAvailable
     implementation 'com.squareup.picasso:picasso:2.8'

@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import com.nkanaev.comics.BuildConfig;
 import com.nkanaev.comics.R;
 import com.nkanaev.comics.fragment.ReaderFragment;
+import com.nkanaev.comics.managers.Utils;
 
 import java.io.File;
 
@@ -43,6 +44,10 @@ public class ReaderActivity extends AppCompatActivity {
             );
         }
         super.onCreate(savedInstanceState);
+        
+        // Android 16 optimization: disable all animations for instant page navigation
+        Utils.disableAllAnimations(this);
+        
         setContentView(R.layout.layout_reader);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_reader);

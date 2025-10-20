@@ -10,9 +10,12 @@
                  android:theme="@style/AppThemeDayNight"
                  android:largeHeap="true"
                  android:name=".MainApplication"
-                 android:requestLegacyExternalStorage="true">
+                 android:allowBackup="true"
+                 android:dataExtractionRules="@xml/data_extraction_rules"
+                 android:enableOnBackInvokedCallback="true">
         <activity android:name=".activity.MainActivity"
-                  android:exported="true">
+                  android:exported="true"
+                  android:theme="@style/AppThemeDayNight.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -25,7 +28,7 @@
         <activity android:name=".activity.ReaderActivity"
                   android:parentActivityName=".activity.MainActivity"
                   android:theme="@style/ReaderTheme"
-                  android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+                  android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode"
                   android:exported="true">
 
             <meta-data android:name="android.support.PARENT_ACTIVITY"
